@@ -1,6 +1,4 @@
 /**
- * Registers our Service Worker on the site
- * Need more? check out:
  * https://github.com/GoogleChrome/sw-precache/blob/master/demo/app/js/service-worker-registration.js
  */
 
