@@ -1,0 +1,19 @@
+{
+  "scripts": {
+    "dev": "node server.js",
+    "offline": "next build && serverless offline start",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "aws-serverless-express": "^3.0.2",
+    "express": "^4.16.2",
+    "next": "^4.2.3",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "serverless": "^1.25.0"
+  },
+  "devDependencies": {
+    "serverless-offline": "^3.16.0"
+  }
+}
