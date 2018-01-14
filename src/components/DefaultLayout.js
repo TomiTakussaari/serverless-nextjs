@@ -4,6 +4,8 @@ import Head from 'next/head'
 
 import DataStore from "../stores/DataStore";
 
+//TODO: add analytics like this: https://github.com/zeit/next.js/issues/160#issuecomment-330204336
+
 export default ({ children, title = "Default title" }) => (
     <div>
         <Head>
