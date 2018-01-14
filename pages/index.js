@@ -1,3 +1,23 @@
 import React from "react";
+import { Style } from "radium";
+import { inject, observer } from 'mobx-react'
 
-export default () => <div>Welcome to next.js!</div>
+import DefaultLayout from '../src/components/DefaultLayout'
+
+const styleRules = {
+    "p": {
+        color: "red"
+    }
+};
+
+const HelloMessage = inject("DataStore")(observer(({DataStore}) => {
+    return <p>Welcome to next.js: {DataStore.getData()}!</p>
+}));
+
+export default () =>
+    <DefaultLayout>
+        <Style rules={styleRules} />
+        <div>
+            <HelloMessage/>
+        </div>
+    </DefaultLayout>
