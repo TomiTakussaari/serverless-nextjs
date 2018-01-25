@@ -3,7 +3,8 @@
     "dev": "node server.js",
     "offline": "next build && serverless offline start",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "export": "next build && next export -o public"
   },
   "dependencies": {
     "aws-serverless-express": "^3.0.2",

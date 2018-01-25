@@ -2,6 +2,9 @@ const path = require('path');
 const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
 
 module.exports = {
+    exportPathMap: () => {
+        return {"/": { page: "/" }};
+    },
     webpack: (config, { dev }) => {
         const oldEntry = config.entry;
 
