@@ -25,11 +25,28 @@ const HelloFromRadium = Radium(() => {
     return <div style={mediaStyle}>Hello from Radium</div>
 });
 
-export default () =>
+const HelloFromInitialProps = ({message}) => {
+    return <div>{message}</div>
+};
+
+const InitialProps = async () => {
+    return {
+        messageFromInitialProps: "hello-from-initial-props"
+    }
+};
+
+const Index = ({messageFromInitialProps}) =>
     <DefaultLayout>
         <Style rules={styleRules} />
         <div>
             <HelloFromMobx/>
             <HelloFromRadium/>
+            <HelloFromInitialProps message={messageFromInitialProps}/>
         </div>
-    </DefaultLayout>
+    </DefaultLayout>;
+
+
+
+Index.getInitialProps = InitialProps;
+
+export default Index;
