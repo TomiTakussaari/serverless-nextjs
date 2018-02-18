@@ -2,17 +2,32 @@ service: nextjs-testing
 
 plugins:
   - serverless-offline
+  - serverless-apigw-binary
 
+custom:
+  serverless-offline:
+    port: 8000
+    dontPrintOutput: true
+  apigwBinary:
+    types:
+      - '*/*'
 
 provider:
   name: aws
   runtime: nodejs6.10
-  memorySize: 1536
-  timeout: 30
+  memorySize: 256
+  timeout: 15
   environment:
+    NODE_ENV=production
 
 functions:
-  nextJsApp:
+  nextJsRootApp:
+    handler: lambda.handler
+    events:
+      - http:
+          path: /
+          method: ANY
+  nextJsAnyApp:
     handler: lambda.handler
     events:
       - http:
