@@ -1,5 +1,18 @@
 service: nextjs-testing
 
+package:
+  exclude:
+    - pages/**
+    - tests/**
+    - node_modules/.cache/**
+    - .cache
+    - package.json
+    - package-lock.json
+    - "**.test.js"
+    - "__snapshots__/"
+  include:
+    - .next/**
+
 plugins:
   - serverless-offline
   - serverless-apigw-binary
