@@ -5,7 +5,7 @@
     "build": "next build",
     "start": "next start",
     "export": "next build && next export -o public",
-    "package": "serverless sam export --output ./sam-template.yml"
+    "package": "serverless package"
   },
   "dependencies": {
     "express": "^4.16.2",
