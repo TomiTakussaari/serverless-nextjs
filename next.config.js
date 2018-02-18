@@ -1,5 +1,5 @@
 const path = require('path');
-const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
+
 
 module.exports = {
     exportPathMap: () => {
@@ -17,6 +17,7 @@ module.exports = {
         /* Enable only in Production */
         if (!dev) {
             // Service Worker
+            const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
             config.plugins.push(
                 new SWPrecacheWebpackPlugin({
                     cacheId: 'next-js-cache',
