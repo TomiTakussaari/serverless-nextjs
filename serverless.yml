@@ -31,7 +31,7 @@ provider:
   memorySize: 256
   timeout: 15
   environment:
-    NODE_ENV=production
+    NODE_ENV: production
 
 functions:
   nextJsRootApp:
