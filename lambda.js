@@ -1,5 +1,5 @@
 const serverless = require("serverless-http");
-
+const server = require("./server");
 process.env.IN_LAMBDA = true;
 process.env.NODE_ENV = "production";
 
@@ -27,10 +27,21 @@ const binaryMimeTypes = [
     "font/woff2"
 ];
 
-const appServer = require("./server");
+let handler = null;
 
-const handler = serverless(appServer, {
-    binary: binaryMimeTypes
-});
-
-exports.handler = (evt, ctx, callback) => handler(evt, ctx, callback);
+module.exports.handler = (evt, ctx, callback) => {
+    const {appServer, prepareP} = server;
+    let initializerP;
+    if (handler === null) {
+        initializerP = prepareP.then(() => {
+            handler = serverless(appServer, {
+                binary: binaryMimeTypes
+            });
+        });
+    } else {
+        initializerP = Promise.resolve();
+    }
+    initializerP.then(() => handler(evt, ctx, callback)).catch((err) => {
+        console.log('failure', err);
+    });
+};

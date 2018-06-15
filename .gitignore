@@ -1,6 +1,6 @@
 node_modules
 .idea
 .next
-static/sw.js
 public
 .serverless
+yarn-error.log

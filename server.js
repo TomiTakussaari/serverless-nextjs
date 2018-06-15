@@ -1,7 +1,8 @@
+const path = require("path");
+
 const express = require("express");
 const next = require("next");
 const mobxReact = require('mobx-react');
-const path = require("path");
 
 const port = parseInt(process.env.PORT, 10) || 3000;
 const dev = process.env.NODE_ENV !== 'production';
@@ -12,16 +13,22 @@ mobxReact.useStaticRendering(true);
 
 function createServer() {
     const server = express();
-    server.get("/sw.js", (req, res) => app.serveStatic(req, res, path.resolve('./static/sw.js')));
+    server.get('/service-worker.js', async (req, res) => {
+        const filePath = path.join(__dirname, '.next', '/service-worker.js');
+        await app.serveStatic(req, res, filePath);
+    });
     server.get("*", (req, res) => handle(req, res));
     return server;
 }
 
-if (process.env.IN_LAMBDA) {
-    module.exports = createServer();
-} else {
-    app.prepare().then(() => {
-        const server = createServer();
+const server = createServer();
+
+const prepareP = app.prepare().then(() => {
+    console.log("App prepared");
+    if (process.env.IN_LAMBDA !== 'true') {
+        console.log("Starting server on: "+port);
         server.listen(port);
-    });
-}
+    }
+});
+
+module.exports = {appServer: server, prepareP};

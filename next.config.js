@@ -1,38 +1,13 @@
-const path = require('path');
+const inLambda = !!process.env.LAMBDA_TASK_ROOT;
+const withOffline = !inLambda && require('next-offline');
 
-
-module.exports = {
+const configuration = {
     exportPathMap: () => {
-        return {"/": { page: "/" }};
+        return {"/": {page: "/"}};
     },
-    webpack: (config, { dev }) => {
-        const oldEntry = config.entry;
-
-        config.entry = () =>
-            oldEntry().then(entry => {
-                entry['main.js'].push(path.resolve('./src/utils/offline'));
-                return entry
-            });
-
-        /* Enable only in Production */
-        if (!dev) {
-            // Service Worker
-            const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
-            config.plugins.push(
-                new SWPrecacheWebpackPlugin({
-                    cacheId: 'next-js-cache',
-                    filepath: './static/sw.js',
-                    minify: true,
-                    staticFileGlobsIgnorePatterns: [/\.next\//],
-                    staticFileGlobs: [
-                        'static/**/*'
-                    ],
-                    runtimeCaching: [
-                    ]
-                })
-            )
-        }
-
+    webpack: (config) => {
         return config
     }
 };
+
+module.exports = withOffline(configuration);
