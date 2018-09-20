@@ -1,7 +1,8 @@
-const serverless = require("serverless-http");
-const server = require("./server");
 process.env.IN_LAMBDA = true;
 process.env.NODE_ENV = "production";
+
+const serverless = require("serverless-http");
+const server = require("./server");
 
 const binaryMimeTypes = [
     "application/javascript",

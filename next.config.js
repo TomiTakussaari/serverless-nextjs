@@ -1,6 +1,3 @@
-const inLambda = !!process.env.LAMBDA_TASK_ROOT;
-const withOffline = !inLambda && require('next-offline');
-
 const configuration = {
     exportPathMap: () => {
         return {"/": {page: "/"}};
@@ -10,4 +7,9 @@ const configuration = {
     }
 };
 
-module.exports = withOffline(configuration);
+if(process.env.IN_LAMBDA) {
+    module.exports = configuration;
+} else {
+    const withOffline = require('next-offline');
+    module.exports = withOffline(configuration);
+}

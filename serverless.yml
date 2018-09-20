@@ -2,50 +2,173 @@ service: nextjs-testing
 
 package:
   exclude:
-    - pages/**
-    - tests/**
-    - node_modules/.cache/**
-    - .cache
-    - package.json
-    - package-lock.json
-    - "**.test.js"
-    - "__snapshots__/"
+  - pages/**
+  - tests/**
+  - node_modules/.cache/**
+  - .cache
+  - package.json
+  - package-lock.json
+  - "**.test.js"
+  - "__snapshots__/"
   include:
-    - .next/**
+  - .next/**
 
 plugins:
-  - serverless-offline
-  - serverless-apigw-binary
+- serverless-offline
+- serverless-apigw-binary
+- serverless-s3-sync
 
 custom:
+  endpointType: REGIONAL
+  region: "${opt:region, self:provider.region}"
+  stage: "${opt:stage, env:SLS_STAGE, 'dev'}"
   serverless-offline:
     port: 8000
     dontPrintOutput: true
   apigwBinary:
     types:
-      - '*/*'
-
+    - '*/*'
+  bucket_name: "${self:service}-${self:custom.stage}-static"
+  s3Sync:
+  - bucketName: ${self:custom.bucket_name}
+    bucketPrefix: static/
+    localDir: static
+    params:
+    - "*.*":
+        CacheControl: 'max-age=86400'
+  - bucketName: ${self:custom.bucket_name}
+    localDir: .next
+    bucketPrefix: _next/
+    params:
+    - "*.*":
+        CacheControl: 'max-age=31536000, immutable'
 provider:
   name: aws
   runtime: nodejs8.10
-  memorySize: 256
+  region: eu-west-1
+  memorySize: 512
   timeout: 15
   environment:
     NODE_ENV: production
 
 functions:
-  nextJsRootApp:
+  nextJsApp:
     handler: lambda.handler
     events:
-      - http:
-          path: /
-          method: ANY
-  nextJsAnyApp:
-    handler: lambda.handler
-    events:
-      - http:
-          path: /{any+}
-          method: ANY
+    - http:
+        path: /
+        method: ANY
+    - http:
+        path: /{any+}
+        method: ANY
 
 resources:
   Description: Next.js testing in AWS lambda
+  Resources:
+    WebsiteBucketPolicy:
+      Type: "AWS::S3::BucketPolicy"
+      DependsOn:
+      - CDNOriginAccessIdentity
+      - WebsiteBucket
+      Properties:
+        Bucket: ${self:custom.bucket_name}
+        PolicyDocument:
+          Statement:
+          - Action:
+            - "s3:GetObject"
+            Effect: "Allow"
+            Resource:
+              Fn::Join:
+              - ""
+              - - Fn::GetAtt: [WebsiteBucket, Arn]
+                - "/*"
+            Principal:
+              CanonicalUser:
+                Fn::GetAtt: [CDNOriginAccessIdentity, S3CanonicalUserId]
+
+    CDNOriginAccessIdentity:
+      Type: "AWS::CloudFront::CloudFrontOriginAccessIdentity"
+      Properties:
+        CloudFrontOriginAccessIdentityConfig:
+          Comment:
+            Fn::Join:
+            - ""
+            - - Ref: AWS::StackName
+              - "-origin-access-identity"
+    WebsiteBucket:
+      Type: AWS::S3::Bucket
+      DeletionPolicy: Delete
+      Properties:
+        BucketName: ${self:custom.bucket_name}
+
+    CloudFrontDistribution:
+      Type: AWS::CloudFront::Distribution
+      DependsOn:
+      - WebsiteBucket
+      Properties:
+        DistributionConfig:
+          Origins:
+          - DomainName:
+              Fn::GetAtt: [WebsiteBucket, DomainName]
+            Id: WebsiteBucket
+            S3OriginConfig:
+              OriginAccessIdentity:
+                Fn::Join:
+                - ""
+                - - "origin-access-identity/cloudfront/"
+                  - Ref: CDNOriginAccessIdentity
+          - DomainName:
+              Fn::Join:
+              - ""
+              - - Ref: ApiGatewayRestApi
+                - ".execute-api."
+                - ${self:custom.region}
+                - ".amazonaws.com"
+            Id: APIGWOrigin
+            OriginPath: "/${self:custom.stage}"
+            CustomOriginConfig:
+              OriginKeepaliveTimeout: 60
+              OriginReadTimeout: 15
+              HTTPPort: 80
+              HTTPSPort: 443
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+              - 'TLSv1'
+              - 'TLSv1.1'
+              - 'TLSv1.2'
+          Enabled: 'true'
+          HttpVersion: http2
+          CacheBehaviors:
+            - PathPattern: /_next/*
+              AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              TargetOriginId: WebsiteBucket
+              Compress: true
+              ForwardedValues:
+                QueryString: false
+              ViewerProtocolPolicy: https-only
+            - PathPattern: /static/*
+              AllowedMethods:
+                - GET
+                - HEAD
+                - OPTIONS
+              TargetOriginId: WebsiteBucket
+              Compress: true
+              ForwardedValues:
+                QueryString: false
+              ViewerProtocolPolicy: https-only
+          DefaultCacheBehavior:
+            AllowedMethods:
+            - GET
+            - HEAD
+            TargetOriginId: APIGWOrigin
+            Compress: true
+            MinTTL: 0
+            DefaultTTL: 0
+            ForwardedValues:
+              QueryString: true
+              Cookies:
+                Forward: none
+            ViewerProtocolPolicy: redirect-to-https
