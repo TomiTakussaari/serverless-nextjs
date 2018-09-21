@@ -34,14 +34,14 @@ custom:
     bucketPrefix: static/
     localDir: static
     params:
-    - "*.*":
-        CacheControl: 'max-age=86400'
+    - "**/*":
+        CacheControl: 'public, max-age=86400'
   - bucketName: ${self:custom.bucket_name}
     localDir: .next
     bucketPrefix: _next/
     params:
-    - "*.*":
-        CacheControl: 'max-age=31536000, immutable'
+    - "**/*":
+        CacheControl: 'public, max-age=31536000, immutable'
 provider:
   name: aws
   runtime: nodejs8.10
