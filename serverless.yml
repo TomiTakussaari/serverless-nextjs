@@ -166,8 +166,8 @@ resources:
             - HEAD
             TargetOriginId: APIGWOrigin
             Compress: true
-            MinTTL: 0
-            DefaultTTL: 0
+            MinTTL: 60
+            DefaultTTL: 60
             ForwardedValues:
               QueryString: true
               Cookies:
