@@ -26,9 +26,6 @@ custom:
   serverless-offline:
     port: 8000
     dontPrintOutput: true
-  apigwBinary:
-    types:
-    - '*/*'
   bucket_name: "${self:service}-${self:custom.stage}-static"
   s3Sync:
   - bucketName: ${self:custom.bucket_name}
