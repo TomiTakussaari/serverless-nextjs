@@ -1,9 +1,8 @@
 # serverless-nextjs
 
 
-Example project using Next.js, Radium and Mobx, 
-deployable with serverless framework to AWS lambda.
-
+Example project using Next.js deployable with serverless framework.
 
 Creates S3 for static assets (js, images, etc), and does SSR using AWS Lambda.
-Combines both with AWS CloudFront.
+
+Combines S3 and Lambda under same domain with AWS CloudFront.
