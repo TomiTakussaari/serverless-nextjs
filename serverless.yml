@@ -5,6 +5,7 @@ package:
   - pages/**
   - tests/**
   - node_modules/.cache/**
+  - static/**
   - .cache
   - package.json
   - package-lock.json
