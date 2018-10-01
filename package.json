@@ -21,7 +21,6 @@
   "devDependencies": {
     "next-offline": "2.13.1",
     "serverless": "1.32.0",
-    "serverless-apigw-binary": "0.4.4",
     "serverless-offline": "3.25.14",
     "serverless-s3-sync": "1.6.1",
     "webpack": "^4.19.1"

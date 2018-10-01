@@ -15,7 +15,6 @@ package:
 
 plugins:
 - serverless-offline
-- serverless-apigw-binary
 - serverless-s3-sync
 
 custom:
