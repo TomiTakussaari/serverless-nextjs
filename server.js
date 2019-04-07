@@ -24,7 +24,12 @@ const prepareP = app.prepare().then(() => {
     console.log("App prepared");
     if (process.env.IN_LAMBDA !== 'true') {
         console.log("Starting server on: "+port);
-        server.listen(port);
+        server.listen(port, err => {
+            if (err) throw err;
+            console.log(
+              `> Ready on http://localhost:${port}`
+            );
+          });
     }
 });
 
