@@ -28,10 +28,15 @@ const gracefulExit = async (server) => {
 const prepareP = app.prepare().then(() => {
     console.log("App prepared");
     if (process.env.IN_LAMBDA !== 'true') {
-        const process = server.listen(port);
+        console.log("Starting server on: " + port);
+        const process = server.listen(port, (err) => {
+            if (err) throw err;
+            console.log(
+                `> Ready on http://localhost:${port}`
+            );
+        });
         process.on('SIGTERM', () => gracefulExit(process));
         process.on('SIGINT', () => gracefulExit(process));
-        console.log("Starting server on: " + port);
     }
 });
 
