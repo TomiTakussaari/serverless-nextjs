@@ -42,7 +42,7 @@ custom:
         CacheControl: 'public, max-age=31536000, immutable'
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs10.x
   region: eu-west-1
   memorySize: 512
   timeout: 15
