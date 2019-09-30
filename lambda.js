@@ -2,21 +2,25 @@ process.env.IN_LAMBDA = true;
 process.env.NODE_ENV = "production";
 
 const serverless = require("serverless-http");
-const server = require("./server");
+const { appServer, prepareP } = require('./server');
 
 let handler = null;
-
-module.exports.handler = (evt, ctx, callback) => {
-    const {appServer, prepareP} = server;
+async function initializeHandler() {
     let initializerP;
     if (handler === null) {
-        initializerP = prepareP.then(() => {
-            handler = serverless(appServer);
-        });
+        await prepareP;
+        handler = serverless(appServer);
     } else {
         initializerP = Promise.resolve();
     }
-    initializerP.then(() => handler(evt, ctx, callback)).catch((err) => {
-        console.log('failure', err);
-    });
+    await initializerP;
+}
+
+module.exports.handler = async (evt, ctx, callback) => {
+    await initializeHandler();
+    try {
+        return await handler(evt, ctx, callback);
+    } catch (error) {
+        logger.error({ error }, 'failed to handle request');
+    }
 };

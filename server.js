@@ -5,7 +5,7 @@ const next = require("next");
 
 const port = parseInt(process.env.PORT, 10) || 3000;
 const dev = process.env.NODE_ENV !== 'production';
-const app = next({ dev });
+const app = next({dev});
 const handle = app.getRequestHandler();
 
 function createServer() {
@@ -20,17 +20,19 @@ function createServer() {
 
 const server = createServer();
 
+const gracefulExit = async (server) => {
+    await server.close();
+    process.exit(0);
+};
+
 const prepareP = app.prepare().then(() => {
     console.log("App prepared");
     if (process.env.IN_LAMBDA !== 'true') {
-        console.log("Starting server on: "+port);
-        server.listen(port, err => {
-            if (err) throw err;
-            console.log(
-              `> Ready on http://localhost:${port}`
-            );
-          });
+        const process = server.listen(port);
+        process.on('SIGTERM', () => gracefulExit(process));
+        process.on('SIGINT', () => gracefulExit(process));
+        console.log("Starting server on: " + port);
     }
 });
 
-module.exports = {appServer: server, prepareP};
+module.exports = { appServer: server, prepareP };
